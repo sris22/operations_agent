@@ -22,10 +22,22 @@ services:
     ports:
       - "8001:8001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/docs"]
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8001/docs')"]
       interval: 10s
       timeout: 5s
       retries: 3
+
+  seed:
+    build: ./backend
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: python -m app.db.seed
+    restart: "no"
 
   backend:
     build: ./backend
@@ -38,8 +50,11 @@ services:
         condition: service_healthy
       mock-enterprise-api:
         condition: service_healthy
+      seed:
+        condition: service_completed_successfully
     volumes:
       - ./backend:/app
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
   frontend:
     build: ./frontend
