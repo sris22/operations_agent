@@ -1,12 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional
 
 from app.core.security import get_current_user
 from app.services.approval_service import (
-    list_pending_approvals,
-    get_approval,
     approve_action,
+    get_approval,
+    list_pending_approvals,
     reject_action,
 )
 
@@ -14,7 +13,7 @@ router = APIRouter()
 
 
 class ApprovalAction(BaseModel):
-    reason: Optional[str] = None
+    reason: str | None = None
 
 
 @router.get("")

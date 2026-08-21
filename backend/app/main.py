@@ -1,16 +1,16 @@
 import time
-import structlog
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
 
+import structlog
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from app.api.routes import approvals, auth, chat, documents, metrics, tickets
 from app.core.config import settings
 from app.core.logging import setup_logging
-from app.api.routes import auth, chat, documents, approvals, tickets, metrics
 from app.db.database import engine
-
 
 logger = structlog.get_logger(__name__)
 setup_logging()
@@ -124,6 +124,7 @@ async def health_check():
 @app.get("/health/ready", tags=["Health"])
 async def readiness_check():
     from sqlalchemy import text
+
     from app.db.database import async_session
 
     checks = {"database": "unknown"}

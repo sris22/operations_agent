@@ -1,9 +1,9 @@
 import enum
-from datetime import datetime, timezone
-from sqlalchemy import (
-    Column, String, Integer, DateTime, Enum, ForeignKey, Index
-)
+from datetime import UTC, datetime
+
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
 
@@ -20,8 +20,12 @@ class Conversation(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     customer_id = Column(String(255), nullable=True, index=True)
     status = Column(Enum(ConversationStatus), nullable=False, default=ConversationStatus.ACTIVE)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
 
     user = relationship("User", back_populates="conversations")
     messages = relationship("Message", back_populates="conversation", order_by="Message.created_at")

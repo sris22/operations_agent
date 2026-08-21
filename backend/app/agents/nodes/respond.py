@@ -1,7 +1,7 @@
 import structlog
 
-from app.agents.state import AgentState
 from app.agents.prompts.loader import load_prompt
+from app.agents.state import AgentState
 from app.core.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -48,6 +48,7 @@ async def generate_response(state: AgentState) -> dict:
 
     try:
         from openai import AsyncOpenAI
+
         client = AsyncOpenAI(api_key=settings.llm_api_key)
         response = await client.chat.completions.create(
             model=settings.llm_model,

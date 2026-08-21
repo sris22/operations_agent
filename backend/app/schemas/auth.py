@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from enum import Enum
+
+from pydantic import BaseModel
 
 
 class UserRole(str, Enum):
@@ -11,7 +11,7 @@ class UserRole(str, Enum):
 class UserCreate(BaseModel):
     email: str
     password: str
-    role: Optional[UserRole] = UserRole.OPERATOR
+    role: UserRole | None = UserRole.OPERATOR
 
 
 class UserLogin(BaseModel):

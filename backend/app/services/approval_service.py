@@ -1,9 +1,8 @@
 import structlog
-from datetime import datetime, timezone
 
 from app.db.database import async_session
-from app.db.repositories.approval_repo import ApprovalRepository
 from app.db.models.approval import ApprovalStatus
+from app.db.repositories.approval_repo import ApprovalRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -61,7 +60,7 @@ async def approve_action(approval_id: int, resolved_by: int) -> dict:
                 "error": f"Approval already {existing.status.value.lower()}",
             }
 
-        approval = await repo.resolve(
+        await repo.resolve(
             approval_id=approval_id,
             status=ApprovalStatus.APPROVED,
             resolved_by=resolved_by,
@@ -91,7 +90,7 @@ async def reject_action(approval_id: int, resolved_by: int) -> dict:
                 "error": f"Approval already {existing.status.value.lower()}",
             }
 
-        approval = await repo.resolve(
+        await repo.resolve(
             approval_id=approval_id,
             status=ApprovalStatus.REJECTED,
             resolved_by=resolved_by,

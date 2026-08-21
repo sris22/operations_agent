@@ -1,17 +1,17 @@
-from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class EvaluationRunResponse(BaseModel):
     id: int
     conversation_id: int
-    retrieval_score: Optional[float] = None
-    relevance_score: Optional[float] = None
-    faithfulness_score: Optional[float] = None
-    latency_ms: Optional[float] = None
-    estimated_cost: Optional[float] = None
-    tool_success_rate: Optional[float] = None
+    retrieval_score: float | None = None
+    relevance_score: float | None = None
+    faithfulness_score: float | None = None
+    latency_ms: float | None = None
+    estimated_cost: float | None = None
+    tool_success_rate: float | None = None
     created_at: datetime
 
 

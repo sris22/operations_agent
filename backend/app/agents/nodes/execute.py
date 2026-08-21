@@ -1,8 +1,9 @@
-import structlog
 import time
 
+import structlog
+
 from app.agents.state import AgentState, ToolResult
-from app.services.enterprise_client import get_enterprise_client, EnterpriseAPIError
+from app.services.enterprise_client import get_enterprise_client
 from app.tools.customer import get_customer
 from app.tools.orders import get_order
 from app.tools.payments import get_payment, refund_payment
@@ -15,11 +16,16 @@ TOOL_REGISTRY = {
     "get_order": lambda client, args: get_order(client, args["order_id"]),
     "get_payment": lambda client, args: get_payment(client, args["payment_id"]),
     "create_ticket": lambda client, args: create_ticket(
-        client, args["customer_id"], args["subject"],
-        args["description"], args.get("priority", "MEDIUM"),
+        client,
+        args["customer_id"],
+        args["subject"],
+        args["description"],
+        args.get("priority", "MEDIUM"),
     ),
     "refund_payment": lambda client, args: refund_payment(
-        client, args["payment_id"], args["amount"],
+        client,
+        args["payment_id"],
+        args["amount"],
     ),
 }
 
@@ -37,12 +43,14 @@ async def execute_tools(state: AgentState) -> dict:
         arguments = tc["arguments"]
 
         if tool_name not in TOOL_REGISTRY:
-            results.append(ToolResult(
-                name=tool_name,
-                success=False,
-                output={},
-                error=f"Unknown tool: {tool_name}",
-            ))
+            results.append(
+                ToolResult(
+                    name=tool_name,
+                    success=False,
+                    output={},
+                    error=f"Unknown tool: {tool_name}",
+                )
+            )
             continue
 
         start = time.time()
@@ -51,12 +59,14 @@ async def execute_tools(state: AgentState) -> dict:
             duration_ms = (time.time() - start) * 1000
 
             result_dict = result.model_dump() if hasattr(result, "model_dump") else result.__dict__
-            results.append(ToolResult(
-                name=tool_name,
-                success=result_dict.get("success", True),
-                output=result_dict,
-                error=result_dict.get("error"),
-            ))
+            results.append(
+                ToolResult(
+                    name=tool_name,
+                    success=result_dict.get("success", True),
+                    output=result_dict,
+                    error=result_dict.get("error"),
+                )
+            )
 
             logger.info(
                 "tool_executed",
@@ -68,12 +78,14 @@ async def execute_tools(state: AgentState) -> dict:
 
         except Exception as e:
             duration_ms = (time.time() - start) * 1000
-            results.append(ToolResult(
-                name=tool_name,
-                success=False,
-                output={},
-                error=str(e),
-            ))
+            results.append(
+                ToolResult(
+                    name=tool_name,
+                    success=False,
+                    output={},
+                    error=str(e),
+                )
+            )
             logger.error(
                 "tool_failed",
                 tool=tool_name,

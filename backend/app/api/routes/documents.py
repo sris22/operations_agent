@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
-from typing import Optional
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 from app.core.security import get_current_user
-from app.services.document_service import upload_document, list_documents, delete_document
+from app.services.document_service import delete_document, list_documents, upload_document
 
 router = APIRouter()
 
@@ -10,10 +9,11 @@ router = APIRouter()
 @router.post("")
 async def upload(
     file: UploadFile = File(...),
-    metadata: Optional[str] = Form(None),
+    metadata: str | None = Form(None),
     current_user=Depends(get_current_user),
 ):
     import json
+
     meta = json.loads(metadata) if metadata else None
 
     content = await file.read()

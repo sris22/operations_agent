@@ -1,12 +1,11 @@
 import io
-import structlog
-from typing import Optional
 
-from app.core.config import settings
+import structlog
+
 from app.db.database import async_session
-from app.db.repositories.document_repo import DocumentRepository
-from app.db.repositories.document_chunk_repo import DocumentChunkRepository
 from app.db.models.document_chunk import DocumentChunk
+from app.db.repositories.document_chunk_repo import DocumentChunkRepository
+from app.db.repositories.document_repo import DocumentRepository
 from app.rag.chunking import chunk_text
 from app.rag.embeddings import get_embedding_provider
 
@@ -17,6 +16,7 @@ ALLOWED_TYPES = {"pdf", "txt", "md"}
 
 def extract_text_from_pdf(content: bytes) -> str:
     from PyPDF2 import PdfReader
+
     reader = PdfReader(io.BytesIO(content))
     pages = []
     for page in reader.pages:
@@ -40,7 +40,7 @@ def extract_text(filename: str, content: bytes) -> str:
 async def ingest_document(
     filename: str,
     file_content: bytes,
-    metadata: Optional[dict] = None,
+    metadata: dict | None = None,
 ) -> dict:
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
     if ext not in ALLOWED_TYPES:
@@ -65,12 +65,14 @@ async def ingest_document(
 
         db_chunks = []
         for i, (chunk_text_content, embedding) in enumerate(zip(chunks, embeddings)):
-            db_chunks.append(DocumentChunk(
-                document_id=doc.id,
-                content=chunk_text_content,
-                embedding=embedding,
-                metadata_={"chunk_index": i, **(metadata or {})},
-            ))
+            db_chunks.append(
+                DocumentChunk(
+                    document_id=doc.id,
+                    content=chunk_text_content,
+                    embedding=embedding,
+                    metadata_={"chunk_index": i, **(metadata or {})},
+                )
+            )
 
         await chunk_repo.create_many(db_chunks)
         await session.commit()

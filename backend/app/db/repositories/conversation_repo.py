@@ -1,7 +1,7 @@
+from collections.abc import Sequence
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from sqlalchemy.orm import selectinload
-from typing import Optional, Sequence
 
 from app.db.models.conversation import Conversation, ConversationStatus
 
@@ -10,14 +10,14 @@ class ConversationRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create(self, user_id: int, customer_id: Optional[str] = None) -> Conversation:
+    async def create(self, user_id: int, customer_id: str | None = None) -> Conversation:
         conversation = Conversation(user_id=user_id, customer_id=customer_id)
         self.db.add(conversation)
         await self.db.flush()
         await self.db.refresh(conversation)
         return conversation
 
-    async def get_by_id(self, conversation_id: int) -> Optional[Conversation]:
+    async def get_by_id(self, conversation_id: int) -> Conversation | None:
         result = await self.db.execute(
             select(Conversation).where(Conversation.id == conversation_id)
         )
@@ -42,7 +42,9 @@ class ConversationRepository:
         )
         return result.scalar_one()
 
-    async def update_status(self, conversation_id: int, status: ConversationStatus) -> Optional[Conversation]:
+    async def update_status(
+        self, conversation_id: int, status: ConversationStatus
+    ) -> Conversation | None:
         conversation = await self.get_by_id(conversation_id)
         if conversation:
             conversation.status = status

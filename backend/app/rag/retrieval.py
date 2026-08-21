@@ -1,11 +1,9 @@
 import structlog
-from typing import Optional
-from sqlalchemy import select, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.db.database import async_session
-from app.db.models.document_chunk import DocumentChunk
 from app.db.repositories.document_repo import DocumentRepository
 from app.rag.embeddings import get_embedding_provider
 
@@ -13,7 +11,13 @@ logger = structlog.get_logger(__name__)
 
 
 class RetrievedChunk:
-    def __init__(self, content: str, document_name: str, similarity_score: float, metadata: Optional[dict] = None):
+    def __init__(
+        self,
+        content: str,
+        document_name: str,
+        similarity_score: float,
+        metadata: dict | None = None,
+    ):
         self.content = content
         self.document_name = document_name
         self.similarity_score = similarity_score
@@ -43,12 +47,14 @@ async def retrieve_relevant_chunks(query: str, top_k: int | None = None) -> list
             doc = await doc_repo.get_by_id(row["document_id"])
             doc_name = doc.filename if doc else "unknown"
 
-            chunks.append(RetrievedChunk(
-                content=row["content"],
-                document_name=doc_name,
-                similarity_score=row["similarity"],
-                metadata=row.get("metadata", {}),
-            ))
+            chunks.append(
+                RetrievedChunk(
+                    content=row["content"],
+                    document_name=doc_name,
+                    similarity_score=row["similarity"],
+                    metadata=row.get("metadata", {}),
+                )
+            )
 
         logger.info(
             "rag_retrieval",
@@ -60,8 +66,11 @@ async def retrieve_relevant_chunks(query: str, top_k: int | None = None) -> list
         return chunks
 
 
-async def _vector_search(session: AsyncSession, query_embedding: list[float], top_k: int) -> list[dict]:
+async def _vector_search(
+    session: AsyncSession, query_embedding: list[float], top_k: int
+) -> list[dict]:
     import numpy as np
+
     query_vec = np.array(query_embedding, dtype=np.float32).tolist()
 
     query = text("""

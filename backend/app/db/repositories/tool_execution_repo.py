@@ -1,6 +1,7 @@
+from collections.abc import Sequence
+
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from typing import Optional, Sequence
 
 from app.db.models.tool_execution import ToolExecution, ToolExecutionStatus
 
@@ -14,10 +15,10 @@ class ToolExecutionRepository:
         conversation_id: int,
         tool_name: str,
         input_: dict,
-        output_: Optional[dict] = None,
+        output_: dict | None = None,
         status: ToolExecutionStatus = ToolExecutionStatus.PENDING,
-        error: Optional[str] = None,
-        duration_ms: Optional[float] = None,
+        error: str | None = None,
+        duration_ms: float | None = None,
     ) -> ToolExecution:
         execution = ToolExecution(
             conversation_id=conversation_id,
@@ -33,7 +34,7 @@ class ToolExecutionRepository:
         await self.db.refresh(execution)
         return execution
 
-    async def get_by_id(self, execution_id: int) -> Optional[ToolExecution]:
+    async def get_by_id(self, execution_id: int) -> ToolExecution | None:
         result = await self.db.execute(
             select(ToolExecution).where(ToolExecution.id == execution_id)
         )
@@ -51,10 +52,10 @@ class ToolExecutionRepository:
         self,
         execution_id: int,
         status: ToolExecutionStatus,
-        output_: Optional[dict] = None,
-        error: Optional[str] = None,
-        duration_ms: Optional[float] = None,
-    ) -> Optional[ToolExecution]:
+        output_: dict | None = None,
+        error: str | None = None,
+        duration_ms: float | None = None,
+    ) -> ToolExecution | None:
         execution = await self.get_by_id(execution_id)
         if execution:
             execution.status = status

@@ -1,6 +1,5 @@
 import os
 import pytest
-import asyncio
 from httpx import AsyncClient, ASGITransport
 
 os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db")
@@ -12,13 +11,6 @@ os.environ.setdefault("ENTERPRISE_API_BASE_URL", "http://localhost:8001")
 from app.main import app
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
-
-
 @pytest.fixture
 async def client():
     transport = ASGITransport(app=app)
@@ -28,7 +20,17 @@ async def client():
 
 @pytest.fixture
 async def auth_token(client: AsyncClient):
-    response = await client.post("/api/auth/register", json={
+    from app.db.database import engine, Base
+    from app.db.models import user, conversation, message, document, document_chunk  # noqa: F401
+    from app.db.models import tool_execution, approval, ticket, evaluation_run  # noqa: F401
+
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception:
+        pytest.skip("PostgreSQL not available")
+
+    await client.post("/api/auth/register", json={
         "email": "test@example.com",
         "password": "testpass123",
     })

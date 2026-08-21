@@ -1,9 +1,9 @@
 import enum
-from datetime import datetime, timezone
-from sqlalchemy import (
-    Column, String, Integer, DateTime, Enum, Text, JSON, Float, ForeignKey, Index
-)
+from datetime import UTC, datetime
+
+from sqlalchemy import JSON, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
 
@@ -24,6 +24,6 @@ class ToolExecution(Base):
     status = Column(Enum(ToolExecutionStatus), nullable=False, default=ToolExecutionStatus.PENDING)
     error = Column(Text, nullable=True)
     duration_ms = Column(Float, nullable=True)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
 
     conversation = relationship("Conversation", back_populates="tool_executions")

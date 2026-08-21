@@ -2,9 +2,9 @@ import structlog
 
 from app.core.config import settings
 from app.db.database import async_session
-from app.db.repositories.document_repo import DocumentRepository
 from app.db.repositories.document_chunk_repo import DocumentChunkRepository
-from app.rag.ingestion import ingest_document, ALLOWED_TYPES
+from app.db.repositories.document_repo import DocumentRepository
+from app.rag.ingestion import ALLOWED_TYPES, ingest_document
 
 logger = structlog.get_logger(__name__)
 
@@ -49,13 +49,15 @@ async def list_documents(page: int = 1, page_size: int = 20) -> dict:
         doc_list = []
         for doc in documents:
             chunks = await chunk_repo.list_by_document(doc.id)
-            doc_list.append({
-                "id": doc.id,
-                "filename": doc.filename,
-                "metadata_": doc.metadata_,
-                "created_at": doc.created_at.isoformat(),
-                "chunk_count": len(chunks),
-            })
+            doc_list.append(
+                {
+                    "id": doc.id,
+                    "filename": doc.filename,
+                    "metadata_": doc.metadata_,
+                    "created_at": doc.created_at.isoformat(),
+                    "chunk_count": len(chunks),
+                }
+            )
 
         return {
             "documents": doc_list,

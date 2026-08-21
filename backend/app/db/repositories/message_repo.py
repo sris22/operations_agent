@@ -1,6 +1,7 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import Sequence
+
 from sqlalchemy import select
-from typing import Optional, Sequence
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.message import Message, MessageRole
 
@@ -14,7 +15,7 @@ class MessageRepository:
         conversation_id: int,
         role: MessageRole,
         content: str,
-        metadata_: Optional[dict] = None,
+        metadata_: dict | None = None,
     ) -> Message:
         message = Message(
             conversation_id=conversation_id,
@@ -27,7 +28,7 @@ class MessageRepository:
         await self.db.refresh(message)
         return message
 
-    async def get_by_id(self, message_id: int) -> Optional[Message]:
+    async def get_by_id(self, message_id: int) -> Message | None:
         result = await self.db.execute(select(Message).where(Message.id == message_id))
         return result.scalar_one_or_none()
 

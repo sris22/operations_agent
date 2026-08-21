@@ -1,9 +1,9 @@
 import enum
-from datetime import datetime, timezone
-from sqlalchemy import (
-    Column, String, Integer, DateTime, Enum, Text, Float, ForeignKey, Index
-)
+from datetime import UTC, datetime
+
+from sqlalchemy import Column, DateTime, Enum, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
 
@@ -19,7 +19,11 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), nullable=False, default=UserRole.OPERATOR)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
 
     conversations = relationship("Conversation", back_populates="user")

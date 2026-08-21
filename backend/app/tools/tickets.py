@@ -1,21 +1,22 @@
-from typing import Optional
 from pydantic import BaseModel, Field
 
-from app.services.enterprise_client import EnterpriseClient, EnterpriseAPIError
+from app.services.enterprise_client import EnterpriseAPIError, EnterpriseClient
 
 
 class CreateTicketInput(BaseModel):
     customer_id: str = Field(..., description="The customer ID")
     subject: str = Field(..., min_length=1, max_length=512, description="Ticket subject")
     description: str = Field(..., min_length=1, description="Ticket description")
-    priority: str = Field(default="MEDIUM", pattern="^(LOW|MEDIUM|HIGH|URGENT)$", description="Ticket priority")
+    priority: str = Field(
+        default="MEDIUM", pattern="^(LOW|MEDIUM|HIGH|URGENT)$", description="Ticket priority"
+    )
 
 
 class CreateTicketResult(BaseModel):
     success: bool
-    ticket: Optional[dict] = None
-    error_code: Optional[str] = None
-    message: Optional[str] = None
+    ticket: dict | None = None
+    error_code: str | None = None
+    message: str | None = None
 
 
 async def create_ticket(

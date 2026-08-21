@@ -1,14 +1,14 @@
-from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class DocumentResponse(BaseModel):
     id: int
     filename: str
-    metadata_: Optional[dict] = None
+    metadata_: dict | None = None
     created_at: datetime
-    chunk_count: Optional[int] = 0
+    chunk_count: int | None = 0
 
 
 class DocumentListResponse(BaseModel):

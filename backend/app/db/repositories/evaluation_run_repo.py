@@ -1,6 +1,7 @@
+from collections.abc import Sequence
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from typing import Optional, Sequence
 
 from app.db.models.evaluation_run import EvaluationRun
 
@@ -12,12 +13,12 @@ class EvaluationRunRepository:
     async def create(
         self,
         conversation_id: int,
-        retrieval_score: Optional[float] = None,
-        relevance_score: Optional[float] = None,
-        faithfulness_score: Optional[float] = None,
-        latency_ms: Optional[float] = None,
-        estimated_cost: Optional[float] = None,
-        tool_success_rate: Optional[float] = None,
+        retrieval_score: float | None = None,
+        relevance_score: float | None = None,
+        faithfulness_score: float | None = None,
+        latency_ms: float | None = None,
+        estimated_cost: float | None = None,
+        tool_success_rate: float | None = None,
     ) -> EvaluationRun:
         run = EvaluationRun(
             conversation_id=conversation_id,
@@ -33,7 +34,7 @@ class EvaluationRunRepository:
         await self.db.refresh(run)
         return run
 
-    async def get_by_id(self, run_id: int) -> Optional[EvaluationRun]:
+    async def get_by_id(self, run_id: int) -> EvaluationRun | None:
         result = await self.db.execute(select(EvaluationRun).where(EvaluationRun.id == run_id))
         return result.scalar_one_or_none()
 

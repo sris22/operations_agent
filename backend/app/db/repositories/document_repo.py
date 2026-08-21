@@ -1,6 +1,7 @@
+from collections.abc import Sequence
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from typing import Optional, Sequence
 
 from app.db.models.document import Document
 
@@ -9,14 +10,14 @@ class DocumentRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create(self, filename: str, content: str, metadata_: Optional[dict] = None) -> Document:
+    async def create(self, filename: str, content: str, metadata_: dict | None = None) -> Document:
         doc = Document(filename=filename, content=content, metadata_=metadata_)
         self.db.add(doc)
         await self.db.flush()
         await self.db.refresh(doc)
         return doc
 
-    async def get_by_id(self, document_id: int) -> Optional[Document]:
+    async def get_by_id(self, document_id: int) -> Document | None:
         result = await self.db.execute(select(Document).where(Document.id == document_id))
         return result.scalar_one_or_none()
 

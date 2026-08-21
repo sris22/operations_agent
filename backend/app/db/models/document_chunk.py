@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
-from sqlalchemy import (
-    Column, String, Integer, DateTime, Text, ForeignKey, JSON, Index
-)
-from sqlalchemy.orm import relationship
+from datetime import UTC, datetime
+
 from pgvector.sqlalchemy import Vector
+from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, Text
+from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
 
@@ -15,6 +15,6 @@ class DocumentChunk(Base):
     content = Column(Text, nullable=False)
     embedding = Column(Vector(1536), nullable=False)
     metadata_ = Column("metadata", JSON, nullable=True)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
 
     document = relationship("Document")

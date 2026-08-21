@@ -1,15 +1,16 @@
-import structlog
 import time
 from uuid import uuid4
 
+import structlog
+
+from app.agents.graph import agent_graph
+from app.agents.state import AgentState
 from app.db.database import async_session
+from app.db.models.message import MessageRole
+from app.db.models.tool_execution import ToolExecutionStatus
 from app.db.repositories.conversation_repo import ConversationRepository
 from app.db.repositories.message_repo import MessageRepository
 from app.db.repositories.tool_execution_repo import ToolExecutionRepository
-from app.db.models.message import MessageRole
-from app.db.models.tool_execution import ToolExecutionStatus
-from app.agents.graph import agent_graph
-from app.agents.state import AgentState
 
 logger = structlog.get_logger(__name__)
 
@@ -36,7 +37,7 @@ async def process_message(
             conversation = await conv_repo.create(user_id=user_id)
             conversation_id = conversation.id
 
-        user_msg = await msg_repo.create(
+        await msg_repo.create(
             conversation_id=conversation_id,
             role=MessageRole.USER,
             content=message,
@@ -73,7 +74,9 @@ async def process_message(
                 tool_name=tr["name"],
                 input_=tr.get("output", {}),
                 output_=tr.get("output", {}),
-                status=ToolExecutionStatus.SUCCESS if tr["success"] else ToolExecutionStatus.FAILURE,
+                status=ToolExecutionStatus.SUCCESS
+                if tr["success"]
+                else ToolExecutionStatus.FAILURE,
                 error=tr.get("error"),
             )
 

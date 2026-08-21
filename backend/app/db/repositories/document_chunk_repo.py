@@ -1,6 +1,7 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import Sequence
+
 from sqlalchemy import select
-from typing import Optional, Sequence
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.document_chunk import DocumentChunk
 
@@ -14,7 +15,7 @@ class DocumentChunkRepository:
         document_id: int,
         content: str,
         embedding: str,
-        metadata_: Optional[dict] = None,
+        metadata_: dict | None = None,
     ) -> DocumentChunk:
         chunk = DocumentChunk(
             document_id=document_id,

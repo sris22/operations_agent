@@ -14,10 +14,12 @@ async def decide_tools(state: AgentState) -> dict:
 
     tool_calls = []
     for tc in classification.get("tool_calls", []):
-        tool_calls.append(ToolCall(
-            name=tc["name"],
-            arguments=tc.get("arguments", {}),
-        ))
+        tool_calls.append(
+            ToolCall(
+                name=tc["name"],
+                arguments=tc.get("arguments", {}),
+            )
+        )
 
     logger.info(
         "tools_decided",

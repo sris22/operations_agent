@@ -1,8 +1,7 @@
-from typing import Optional
 from pydantic import BaseModel, Field
 
 from app.core.config import settings
-from app.services.enterprise_client import EnterpriseClient, EnterpriseAPIError
+from app.services.enterprise_client import EnterpriseAPIError, EnterpriseClient
 
 
 class PaymentLookupInput(BaseModel):
@@ -11,9 +10,9 @@ class PaymentLookupInput(BaseModel):
 
 class PaymentLookupResult(BaseModel):
     success: bool
-    payment: Optional[dict] = None
-    error_code: Optional[str] = None
-    message: Optional[str] = None
+    payment: dict | None = None
+    error_code: str | None = None
+    message: str | None = None
 
 
 async def get_payment(client: EnterpriseClient, payment_id: str) -> PaymentLookupResult:
@@ -41,14 +40,16 @@ class RefundPaymentInput(BaseModel):
 
 class RefundPaymentResult(BaseModel):
     success: bool
-    refund_amount: Optional[float] = None
-    payment_id: Optional[str] = None
+    refund_amount: float | None = None
+    payment_id: str | None = None
     requires_approval: bool = False
-    error_code: Optional[str] = None
-    message: Optional[str] = None
+    error_code: str | None = None
+    message: str | None = None
 
 
-async def refund_payment(client: EnterpriseClient, payment_id: str, amount: float) -> RefundPaymentResult:
+async def refund_payment(
+    client: EnterpriseClient, payment_id: str, amount: float
+) -> RefundPaymentResult:
     if amount > settings.refund_approval_threshold:
         return RefundPaymentResult(
             success=False,

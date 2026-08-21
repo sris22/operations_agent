@@ -63,17 +63,25 @@ async def execute_after_approval(state: AgentState) -> dict:
 
     try:
         if pending["action_type"] == "refund_payment":
-            result = await TOOL_REGISTRY["refund_payment"](client, {
-                "payment_id": payload.get("payment_id"),
-                "amount": payload.get("refund_amount", payload.get("amount", 0)),
-            })
+            result = await TOOL_REGISTRY["refund_payment"](
+                client,
+                {
+                    "payment_id": payload.get("payment_id"),
+                    "amount": payload.get("refund_amount", payload.get("amount", 0)),
+                },
+            )
             result_dict = result.model_dump() if hasattr(result, "model_dump") else result.__dict__
-            return {"tool_results": state.get("tool_results", []) + [{
-                "name": "refund_payment",
-                "success": result_dict.get("success", False),
-                "output": result_dict,
-                "error": result_dict.get("error"),
-            }]}
+            return {
+                "tool_results": state.get("tool_results", [])
+                + [
+                    {
+                        "name": "refund_payment",
+                        "success": result_dict.get("success", False),
+                        "output": result_dict,
+                        "error": result_dict.get("error"),
+                    }
+                ]
+            }
     except Exception as e:
         logger.error("approval_execution_failed", error=str(e), request_id=state["request_id"])
 

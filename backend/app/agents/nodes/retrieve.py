@@ -1,7 +1,7 @@
 import structlog
 
 from app.agents.state import AgentState
-from app.rag.retrieval import retrieve_relevant_chunks, build_rag_context
+from app.rag.retrieval import retrieve_relevant_chunks
 
 logger = structlog.get_logger(__name__)
 

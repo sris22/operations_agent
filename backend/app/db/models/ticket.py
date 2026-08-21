@@ -1,8 +1,8 @@
 import enum
-from datetime import datetime, timezone
-from sqlalchemy import (
-    Column, String, Integer, DateTime, Enum, Text, JSON, Index
-)
+from datetime import UTC, datetime
+
+from sqlalchemy import Column, DateTime, Enum, Integer, String, Text
+
 from app.db.database import Base
 
 
@@ -29,5 +29,9 @@ class Ticket(Base):
     description = Column(Text, nullable=False)
     status = Column(Enum(TicketStatus), nullable=False, default=TicketStatus.OPEN)
     priority = Column(Enum(TicketPriority), nullable=False, default=TicketPriority.MEDIUM)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )

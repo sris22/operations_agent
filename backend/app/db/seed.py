@@ -12,14 +12,12 @@ All data is for development only and must not be used in production.
 """
 
 import asyncio
-import sys
 
 from sqlalchemy import select
 
-from app.db.database import async_session, engine, Base
-from app.db.models.user import User, UserRole
 from app.core.security import hash_password
-
+from app.db.database import Base, async_session, engine
+from app.db.models.user import User, UserRole
 
 DEV_USERS = [
     {
@@ -103,9 +101,7 @@ async def seed():
     async with async_session() as session:
         # Seed users
         for user_data in DEV_USERS:
-            existing = await session.execute(
-                select(User).where(User.email == user_data["email"])
-            )
+            existing = await session.execute(select(User).where(User.email == user_data["email"]))
             if existing.scalar_one_or_none():
                 print(f"  User {user_data['email']} already exists, skipping")
                 continue

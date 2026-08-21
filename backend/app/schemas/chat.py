@@ -1,17 +1,17 @@
-from pydantic import BaseModel
-from typing import Optional, List
 from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class ChatRequest(BaseModel):
-    conversation_id: Optional[int] = None
+    conversation_id: int | None = None
     message: str
 
 
 class ToolExecutionInfo(BaseModel):
     tool_name: str
     status: str
-    duration_ms: Optional[float] = None
+    duration_ms: float | None = None
 
 
 class SourceInfo(BaseModel):
@@ -24,23 +24,23 @@ class ChatResponse(BaseModel):
     conversation_id: int
     message_id: int
     response: str
-    sources: List[SourceInfo] = []
-    tool_executions: List[ToolExecutionInfo] = []
+    sources: list[SourceInfo] = []
+    tool_executions: list[ToolExecutionInfo] = []
     approval_required: bool = False
-    approval_id: Optional[int] = None
+    approval_id: int | None = None
 
 
 class MessageResponse(BaseModel):
     id: int
     role: str
     content: str
-    metadata_: Optional[dict] = None
+    metadata_: dict | None = None
     created_at: datetime
 
 
 class ConversationResponse(BaseModel):
     id: int
-    customer_id: Optional[str] = None
+    customer_id: str | None = None
     status: str
     created_at: datetime
     updated_at: datetime

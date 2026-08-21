@@ -1,5 +1,6 @@
-import structlog
 import time
+
+import structlog
 
 from app.db.database import async_session
 from app.db.repositories.evaluation_run_repo import EvaluationRunRepository
@@ -28,43 +29,57 @@ async def run_evaluation(user_id: int) -> dict:
             expected_tools = set(case["expected_tools"])
             actual_tools = set(tool_names)
 
-            tool_match = len(expected_tools.intersection(actual_tools)) / max(len(expected_tools), 1)
+            tool_match = len(expected_tools.intersection(actual_tools)) / max(
+                len(expected_tools), 1
+            )
             has_response = bool(chat_result.get("response"))
-            has_sources = len(chat_result.get("sources", [])) > 0
+            len(chat_result.get("sources", [])) > 0
 
             retrieval_score = min(1.0, len(chat_result.get("sources", [])) / 3)
             relevance_score = tool_match if expected_tools else (1.0 if has_response else 0.0)
             faithfulness_score = 1.0 if has_response else 0.0
 
-            results.append({
-                "case_id": case["id"],
-                "success": True,
-                "latency_ms": latency_ms,
-                "retrieval_score": retrieval_score,
-                "relevance_score": relevance_score,
-                "faithfulness_score": faithfulness_score,
-                "tool_success_rate": tool_match,
-                "response": chat_result.get("response", "")[:200],
-            })
+            results.append(
+                {
+                    "case_id": case["id"],
+                    "success": True,
+                    "latency_ms": latency_ms,
+                    "retrieval_score": retrieval_score,
+                    "relevance_score": relevance_score,
+                    "faithfulness_score": faithfulness_score,
+                    "tool_success_rate": tool_match,
+                    "response": chat_result.get("response", "")[:200],
+                }
+            )
 
         except Exception as e:
             latency_ms = (time.time() - start) * 1000
-            results.append({
-                "case_id": case["id"],
-                "success": False,
-                "latency_ms": latency_ms,
-                "error": str(e),
-                "retrieval_score": 0.0,
-                "relevance_score": 0.0,
-                "faithfulness_score": 0.0,
-                "tool_success_rate": 0.0,
-            })
+            results.append(
+                {
+                    "case_id": case["id"],
+                    "success": False,
+                    "latency_ms": latency_ms,
+                    "error": str(e),
+                    "retrieval_score": 0.0,
+                    "relevance_score": 0.0,
+                    "faithfulness_score": 0.0,
+                    "tool_success_rate": 0.0,
+                }
+            )
 
     avg_latency = sum(r["latency_ms"] for r in results) / len(results) if results else 0
-    avg_retrieval = sum(r.get("retrieval_score", 0) for r in results) / len(results) if results else 0
-    avg_relevance = sum(r.get("relevance_score", 0) for r in results) / len(results) if results else 0
-    avg_faithfulness = sum(r.get("faithfulness_score", 0) for r in results) / len(results) if results else 0
-    avg_tool_success = sum(r.get("tool_success_rate", 0) for r in results) / len(results) if results else 0
+    avg_retrieval = (
+        sum(r.get("retrieval_score", 0) for r in results) / len(results) if results else 0
+    )
+    avg_relevance = (
+        sum(r.get("relevance_score", 0) for r in results) / len(results) if results else 0
+    )
+    avg_faithfulness = (
+        sum(r.get("faithfulness_score", 0) for r in results) / len(results) if results else 0
+    )
+    avg_tool_success = (
+        sum(r.get("tool_success_rate", 0) for r in results) / len(results) if results else 0
+    )
     successful = sum(1 for r in results if r["success"])
     failed = len(results) - successful
 

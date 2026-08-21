@@ -1,7 +1,8 @@
-from datetime import datetime, timezone
-from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import Sequence
+from datetime import UTC, datetime
+
 from sqlalchemy import select
-from typing import Optional, Sequence
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.approval import Approval, ApprovalStatus
 
@@ -27,7 +28,7 @@ class ApprovalRepository:
         await self.db.refresh(approval)
         return approval
 
-    async def get_by_id(self, approval_id: int) -> Optional[Approval]:
+    async def get_by_id(self, approval_id: int) -> Approval | None:
         result = await self.db.execute(select(Approval).where(Approval.id == approval_id))
         return result.scalar_one_or_none()
 
@@ -55,14 +56,14 @@ class ApprovalRepository:
         approval_id: int,
         status: ApprovalStatus,
         resolved_by: int,
-    ) -> Optional[Approval]:
+    ) -> Approval | None:
         approval = await self.get_by_id(approval_id)
         if not approval:
             return None
         if approval.status != ApprovalStatus.PENDING:
             return approval
         approval.status = status
-        approval.resolved_at = datetime.now(timezone.utc)
+        approval.resolved_at = datetime.now(UTC)
         approval.resolved_by = resolved_by
         await self.db.flush()
         await self.db.refresh(approval)

@@ -1,9 +1,9 @@
 import enum
-from datetime import datetime, timezone
-from sqlalchemy import (
-    Column, String, Integer, DateTime, Enum, JSON, ForeignKey, Index
-)
+from datetime import UTC, datetime
+
+from sqlalchemy import JSON, Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
 
@@ -22,7 +22,7 @@ class Approval(Base):
     action_type = Column(String(255), nullable=False)
     action_payload = Column(JSON, nullable=False)
     status = Column(Enum(ApprovalStatus), nullable=False, default=ApprovalStatus.PENDING)
-    requested_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    requested_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
     resolved_at = Column(DateTime(timezone=True), nullable=True)
     resolved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 

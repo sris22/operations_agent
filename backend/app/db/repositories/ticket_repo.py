@@ -1,8 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
-from app.db.models.ticket import Ticket, TicketStatus, TicketPriority
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.models.ticket import Ticket, TicketPriority, TicketStatus
 
 
 class TicketRepository:
@@ -27,7 +28,7 @@ class TicketRepository:
         await self.db.refresh(ticket)
         return ticket
 
-    async def get_by_id(self, ticket_id: int) -> Optional[Ticket]:
+    async def get_by_id(self, ticket_id: int) -> Ticket | None:
         result = await self.db.execute(select(Ticket).where(Ticket.id == ticket_id))
         return result.scalar_one_or_none()
 
@@ -39,7 +40,7 @@ class TicketRepository:
         )
         return result.scalars().all()
 
-    async def update_status(self, ticket_id: int, status: TicketStatus) -> Optional[Ticket]:
+    async def update_status(self, ticket_id: int, status: TicketStatus) -> Ticket | None:
         ticket = await self.get_by_id(ticket_id)
         if ticket:
             ticket.status = status

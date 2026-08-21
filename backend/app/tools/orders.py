@@ -1,7 +1,6 @@
-from typing import Optional
 from pydantic import BaseModel, Field
 
-from app.services.enterprise_client import EnterpriseClient, EnterpriseAPIError
+from app.services.enterprise_client import EnterpriseAPIError, EnterpriseClient
 
 
 class OrderLookupInput(BaseModel):
@@ -10,9 +9,9 @@ class OrderLookupInput(BaseModel):
 
 class OrderLookupResult(BaseModel):
     success: bool
-    order: Optional[dict] = None
-    error_code: Optional[str] = None
-    message: Optional[str] = None
+    order: dict | None = None
+    error_code: str | None = None
+    message: str | None = None
 
 
 async def get_order(client: EnterpriseClient, order_id: str) -> OrderLookupResult:

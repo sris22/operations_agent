@@ -1,7 +1,6 @@
 import structlog
 
 from app.agents.state import AgentState
-from app.core.config import settings
 
 logger = structlog.get_logger(__name__)
 

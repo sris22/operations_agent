@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):
@@ -58,11 +57,11 @@ class Settings(BaseSettings):
     max_page_size: int = 100
 
     @property
-    def cors_origins_list(self) -> List[str]:
+    def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @property
-    def allowed_document_types_list(self) -> List[str]:
+    def allowed_document_types_list(self) -> list[str]:
         return [t.strip() for t in self.allowed_document_types.split(",") if t.strip()]
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}

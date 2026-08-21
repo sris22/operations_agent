@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
-from typing import Optional
 
 from app.core.security import get_current_user
 from app.db.database import async_session
@@ -12,7 +11,7 @@ router = APIRouter()
 
 
 class ChatRequest(BaseModel):
-    conversation_id: Optional[int] = None
+    conversation_id: int | None = None
     message: str
 
 
@@ -34,7 +33,7 @@ async def send_message(
         return result
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Failed to process message")
 
 

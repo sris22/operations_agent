@@ -1,8 +1,7 @@
 import structlog
-from typing import Optional
 
-from app.agents.state import AgentState, ToolCall
 from app.agents.prompts.loader import load_prompt
+from app.agents.state import AgentState, ToolCall
 from app.core.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -14,16 +13,9 @@ async def classify_request(state: AgentState) -> dict:
     prompt = load_prompt("classification")
     system_prompt = load_prompt("system")
 
-    full_prompt = f"""{system_prompt}
-
-{prompt}
-
-User message: {user_message}
-
-Respond with a JSON object containing: intent, requires_tools, tool_calls, customer_id, confidence, reasoning."""
-
     try:
         from openai import AsyncOpenAI
+
         client = AsyncOpenAI(api_key=settings.llm_api_key)
         response = await client.chat.completions.create(
             model=settings.llm_model,
@@ -36,14 +28,17 @@ Respond with a JSON object containing: intent, requires_tools, tool_calls, custo
         )
 
         import json
+
         classification = json.loads(response.choices[0].message.content)
 
         tool_calls = []
         for tc in classification.get("tool_calls", []):
-            tool_calls.append(ToolCall(
-                name=tc["name"],
-                arguments=tc.get("arguments", {}),
-            ))
+            tool_calls.append(
+                ToolCall(
+                    name=tc["name"],
+                    arguments=tc.get("arguments", {}),
+                )
+            )
 
         logger.info(
             "request_classified",

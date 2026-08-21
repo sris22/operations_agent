@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
-from sqlalchemy import (
-    Column, String, Integer, DateTime, Text, JSON
-)
+from datetime import UTC, datetime
+
+from sqlalchemy import JSON, Column, DateTime, Integer, String, Text
+
 from app.db.database import Base
 
 
@@ -12,5 +12,9 @@ class Document(Base):
     filename = Column(String(512), nullable=False)
     content = Column(Text, nullable=False)
     metadata_ = Column("metadata", JSON, nullable=True)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
