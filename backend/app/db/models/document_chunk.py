@@ -3,6 +3,7 @@ from sqlalchemy import (
     Column, String, Integer, DateTime, Text, ForeignKey, JSON, Index
 )
 from sqlalchemy.orm import relationship
+from pgvector.sqlalchemy import Vector
 from app.db.database import Base
 
 
@@ -12,7 +13,7 @@ class DocumentChunk(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     document_id = Column(Integer, ForeignKey("documents.id"), nullable=False, index=True)
     content = Column(Text, nullable=False)
-    embedding = Column(Text, nullable=False)  # pgvector extension handled at DB level
+    embedding = Column(Vector(1536), nullable=False)
     metadata_ = Column("metadata", JSON, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
